@@ -7,13 +7,13 @@ Anggota:
 
 **Daftar Soal:**
 
-- [Soal 1](https://github.com/ThomasFel/Jarkom-Modul-3-A08-2021#Soal-1)
-- [Soal 2](https://github.com/ThomasFel/Jarkom-Modul-3-A08-2021#Soal-2)
-- [Soal 3](https://github.com/ThomasFel/Jarkom-Modul-3-A08-2021#Soal-3)
-- [Soal 4](https://github.com/ThomasFel/Jarkom-Modul-3-A08-2021#Soal-4)
-- [Soal 5](https://github.com/ThomasFel/Jarkom-Modul-3-A08-2021#Soal-5)
-- [Soal 6](https://github.com/ThomasFel/Jarkom-Modul-3-A08-2021#Soal-6)
-- [Soal 7](https://github.com/ThomasFel/Jarkom-Modul-3-A08-2021#Soal-7)
+- [Soal 1](#soal_1)
+- [Soal 2](#soal_2)
+- [Soal 3](#soal_3)
+- [Soal 4](#soal_4)
+- [Soal 5](#soal_5)
+- [Soal 6](#soal_6)
+- [Soal 7](#soal_7)
 
 ## Narasi Pendahuluan
 
