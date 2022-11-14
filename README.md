@@ -19,7 +19,7 @@ Anggota:
 
 Loid bersama Franky berencana membuat peta seperti berikut:
 
-<img src="https://user-images.githubusercontent.com/37539546/141499741-55668306-c5dd-4510-99a0-626dc5b8fdb4.JPG" width=600>
+![image](https://user-images.githubusercontent.com/85062827/201646623-1aeeeac6-ae6a-4f05-83c8-b6c8b21935af.png)
 
 ## Soal 1
 
@@ -37,17 +37,17 @@ Pertama, membuat topologi sesuai permintaan soal. Kemudian _setting network_ mas
 
   auto eth1
   iface eth1 inet static
-    address 10.3.1.1
+    address 10.22.1.1
     netmask 255.255.255.0
 
   auto eth2
   iface eth2 inet static
-    address 10.3.2.1
+    address 10.22.2.1
     netmask 255.255.255.0
 
   auto eth3
     iface eth3 inet static
-    address 10.3.3.1
+    address 10.22.3.1
     netmask 255.255.255.0
   ```
 
@@ -65,27 +65,27 @@ Pertama, membuat topologi sesuai permintaan soal. Kemudian _setting network_ mas
   ```
   auto eth0
   iface eth0 inet static
-    address 10.3.2.2
+    address 10.22.2.2
     netmask 255.255.255.0
-    gateway 10.3.2.1
+    gateway 10.22.2.1
   ```
 - Berlint (Proxy Server)
 
 ```
 auto eth0
 iface eth0 inet static
-  address 10.3.2.3
+  address 10.22.2.3
   netmask 255.255.255.0
-  gateway 10.3.2.1
+  gateway 10.22.2.1
 ```
 
 - Westalis (DHCP Server)
   ```
   auto eth0
   iface eth0 inet static
-    address 10.3.2.4
+    address 10.22.2.4
     netmask 255.255.255.0
-    gateway 10.3.2.1
+    gateway 10.22.2.1
   ```
 - Eden (Client)
 
@@ -112,7 +112,7 @@ iface eth0 inet static
 _Restart_ semua _node_. Lalu jalankan _command_ berikut pada _router_ `Ostania` untuk pengaturan lalu lintas komputer.
 
 ```
-iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE -s 10.3.0.0/16
+iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE -s 10.22.0.0/16
 ```
 
 (Note: _Prefix_ IP yang digunakan sesuai _Prefix_ IP Kelompok, dalam hal ini kelompok E01 adalah **10.22**).
@@ -125,7 +125,8 @@ cat /etc/resolv.conf
 
 Akan muncul _nameserver_ yang akan digunakan pada konfigurasi selanjutnya.
 
-<img src="https://user-images.githubusercontent.com/37539546/139521833-df4ae23e-08eb-4927-bd0e-992ec548670f.JPG" width="350">
+![image](https://user-images.githubusercontent.com/85062827/201647083-f360c35a-9e86-4b1f-95d6-bae60554622b.png)
+
 
 ### Semua node (kecuali Ostania)
 
@@ -164,7 +165,7 @@ apt-get install isc-dhcp-relay -y
 
 Buka _file_ **/etc/default/isc-dhcp-relay** dan edit seperti konfigurasi berikut.
 
-<img src="https://user-images.githubusercontent.com/37539546/141504252-90f1983b-2380-4739-93e1-42ccbb75d38c.JPG" width="600">
+![image](https://user-images.githubusercontent.com/85062827/201648269-b418438c-6cf4-42ae-8e58-90f5d57e8a98.png)
 
 _Restart_ **DHCP Relay**.
 
@@ -200,11 +201,26 @@ apt-get install isc-dhcp-server -y
 
 Buka _file_ **/etc/default/isc-dhcp-server** dan edit seperti konfigurasi berikut.
 
-<img src="https://user-images.githubusercontent.com/37539546/141606487-f2d9486e-5c42-4769-b61e-692cb276fd78.JPG" width="600">
+```
+INTERFACES="eth0"
+```
 
 Buka _file_ lagi, yaitu **/etc/dhcp/dhcpd.conf** dan edit seperti konfigurasi berikut. Sebagai catatan, di konfigurasi ini juga sekalian mengatur _node_ yang ada di Switch2.
 
-<img src="https://user-images.githubusercontent.com/37539546/141607080-33803e75-71e1-419a-b082-0f33fa1ba469.JPG" width="450">
+```
+subnet 10.22.1.0 netmask 255.255.255.0 {
+    range 10.22.1.50 10.22.1.88;
+    range 10.22.1.120 10.22.1.155;
+    option routers 10.22.1.1;
+    option broadcast-address 10.22.1.255;
+    option domain-name-servers 10.22.2.2;
+    default-lease-time 360;
+    max-lease-time 7200;
+}
+subnet 10.22.2.0 netmask 255.255.255.0 {
+    option routers 10.22.2.1;
+}
+```
 
 _Restart_ **DHCP Server**.
 
@@ -214,7 +230,7 @@ service isc-dhcp-server restart
 
 Perlu diketahui, apabila muncul _fail_ seperti di bawah, dapat melakukan _restart_ DHCP Server kembali.
 
-<img src="https://user-images.githubusercontent.com/37539546/141606738-ea9007d7-d26e-4f15-ac6a-8246d6fa7df7.JPG" width="600">
+![image](https://user-images.githubusercontent.com/85062827/201649888-0e6a6179-5def-45a4-8cc6-94ec28f49a69.png)
 
 Untuk memastikan apakah DHCP Server berjalan, dapat menggunakan _command_ berikut.
 
@@ -232,7 +248,17 @@ service isc-dhcp-server status
 
 Buka _file_ lagi, yaitu **/etc/dhcp/dhcpd.conf** dan edit seperti konfigurasi berikut.
 
-<img src="https://user-images.githubusercontent.com/37539546/141607041-0874be37-7f43-44f7-b578-f8f619e1ca5d.JPG" width="450">
+```
+subnet 10.22.3.0 netmask 255.255.255.0 {
+    range 10.22.3.10 10.22.3.30;
+    range 10.22.3.60 10.22.3.85;
+    option routers 10.22.1.1;
+    option broadcast-address 10.22.3.255;
+    option domain-name-servers 10.22.2.2;
+    default-lease-time 720;
+    max-lease-time 7200;
+}
+```
 
 _Restart_ **DHCP Server**.
 
@@ -250,9 +276,9 @@ service isc-dhcp-server restart
 
 Buka _file_ lagi, yaitu **/etc/dhcp/dhcpd.conf** dan edit seperti konfigurasi berikut.
 
-<img src="https://user-images.githubusercontent.com/37539546/141607397-fe6b2ae3-8b5f-4da9-af3d-4ba56659df2c.jpg" width="450">
-
-<img src="https://user-images.githubusercontent.com/37539546/141607402-9e1552af-2714-4019-99c8-90ce4be3b280.jpg" width="450">
+```
+option domain-name-servers 10.22.2.2;
+```
 
 _Restart_ **DHCP Server**.
 
@@ -271,7 +297,13 @@ apt-get install bind9 -y
 
 Buka _file_ **/etc/bind/named.conf.options** dan edit seperti konfigurasi berikut.
 
-<img src="https://user-images.githubusercontent.com/37539546/141607951-e806b4f2-c11c-4de7-8f9f-d11d8d04fdf9.JPG" width="600">
+```
+forwarders {
+      192.168.122.1;
+};
+
+allow-query{any;};
+```
 
 _Restart_ **bind9**.
 
@@ -287,11 +319,7 @@ service bind9 restart
 
 ### Westalis
 
-Buka _file_ lagi, yaitu **/etc/dhcp/dhcpd.conf** dan edit seperti konfigurasi berikut.
-
-<img src="https://user-images.githubusercontent.com/37539546/141608332-7efb39e5-c91c-4d85-b5bd-3bc136fcc229.jpg" width="450">
-
-<img src="https://user-images.githubusercontent.com/37539546/141608339-be9a109c-2b1c-4049-9c6d-bd7b0c27c244.jpg" width="450">
+Buka _file_ lagi, yaitu **/etc/dhcp/dhcpd.conf** dan edit waktu
 
 _Restart_ **DHCP Server**.
 
@@ -303,11 +331,9 @@ service isc-dhcp-server restart
 
 _Restart_ semua _client_ terlebih dahulu. Kemudian lakukan _testing_ IP dan _nameserver_ pada _client_. Salah satu contoh hasilnya pada **SSS** adalah seperti di bawah ini:
 
-<img src="https://user-images.githubusercontent.com/37539546/141608177-54d51e68-089f-4e50-a05c-58686b6cf8ac.JPG" width="600">
+![image](https://user-images.githubusercontent.com/85062827/201653710-b2f5eeff-f5bc-4d3c-b49e-f2de0ec88a0d.png)
 
-_Testing_ juga _client_ apakah sudah bisa terkoneksi dengan internet dengan `ping` ke [**google.com**](https://www.google.com). Sebagai contoh pada `SSS`:
-
-<img src="https://user-images.githubusercontent.com/37539546/139522122-43ddb61d-0b3a-484f-a4a5-433109dd6529.JPG" width="600">
+_Testing_ juga _client_ apakah sudah bisa terkoneksi dengan internet dengan `ping` ke [**google.com**](https://www.google.com). 
 
 ## Soal 7
 
@@ -319,22 +345,27 @@ _Testing_ juga _client_ apakah sudah bisa terkoneksi dengan internet dengan `pin
 
 Buka _file_ lagi, yaitu **/etc/dhcp/dhcpd.conf** dan edit seperti konfigurasi berikut.
 
-<img src="https://user-images.githubusercontent.com/37539546/141608558-e0876061-f5b3-46c4-8881-7d760d2eebb8.JPG" width="450">
+```
+host Eden {
+  hardware ethernet 46:eb:80:d4:01:7c;
+  fixed-address 10.22.3.13;
+}
+```
 
-### KemonoPark
+### Eden
 
 `Edit network configuration` yang ada di menu `Configure` dan tambahkan baris perintah berikut.
 
 ```
-hwaddress ether a6:e5:6b:b6:37:ed
+hwaddress ether 46:eb:80:d4:01:7c
 ```
 
-Sebagai catatan, nilai **hwaddress** atau **hardware ethernet** diperoleh dari _interface_ yang ada di _node_ **Kemonopark** dengan menggunakan _command_ `ip a`.
+Sebagai catatan, nilai **hwaddress** atau **hardware ethernet** diperoleh dari _interface_ yang ada di _node_ **Eden** dengan menggunakan _command_ `ip a`.
 
-<img src="https://user-images.githubusercontent.com/37539546/141608876-d2d03424-6580-4042-a5b0-fc8eee17e657.JPG" width="600">
+![image](https://user-images.githubusercontent.com/85062827/201655084-58b4dd45-0821-458e-bff9-02741bb49f8a.png)
 
 Jadi nilainya akan berbeda tiap _project_.
 
 Kemudian _restart node_. _Testing_ lagi dengan _command_ `ip a`, maka akan terlihat bahwa IP telah berubah.
 
-<img src="https://user-images.githubusercontent.com/37539546/141608971-93d85ee6-85af-42ec-b7c0-3319379c9fc4.jpg" width="600">
+![image](https://user-images.githubusercontent.com/85062827/201655454-f9ee0b1d-f294-4825-aa7c-d8cf960ad50b.png)
